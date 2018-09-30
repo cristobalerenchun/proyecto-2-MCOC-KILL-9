@@ -4,11 +4,11 @@ using Dates
 xdoc_in = parse_file("Satelite.xml")
 
 Earth_Explorer_File= root(xdoc_in) 
-println(name(Earth_Explorer_File))
+#println(name(Earth_Explorer_File))
 
 header_list = Earth_Explorer_File["Earth_Explorer_Header"]
 header = header_list[1]
-println(header)
+#println(header)
 
 data_block = Earth_Explorer_File["Data_Block"][1]
 List_of_OSVs = data_block["List_of_OSVs"][1]
@@ -16,7 +16,7 @@ List_of_OSVs = data_block["List_of_OSVs"][1]
 
 Nt_texto = attribute(List_of_OSVs, "count")
 Nt = parse(Int32, Nt_texto) 
-println("Nt = $(Nt)")
+#println("Nt = $(Nt)")
 t = zeros(Nt)
 Z = zeros(6, Nt)
 
@@ -82,34 +82,33 @@ function zpunto(t, z)
 	return zp
 end 
 
-#println(zp)
+#println("zfinal = $(z[:,end])")
 
-tiempo = zeros(Nt)
+tiempo = zeros(Nt+1)
 
-z = zeros(6,Nt)
+z = zeros(6,Nt+1)
 z[:,1] = z0
 tiempo[1] = t[1]
 
-NSubSteps = 10
+NSubSteps = 200
 
 dt_sub = dt / NSubSteps
 
 
 
-
-for i in 2:Nt
-	# println("paso $(i)")
+#Runge Kutta orden 2
+for i in 2:(Nt+1)
+	 #println("paso $(i)")
 	zsub = z[:,i-1]
-	zsub1 = z[:,i-1]
 	for substep in 1:NSubSteps
-    	zp = zpunto(tiempo[i], zsub)
-    	zp1 = zpunto(tiempo[i-1], zsub1)
-    	zsub = zsub + dt_sub*(zp+zp1)*0.5 
+		z0 = zsub + dt_sub*zpunto(tiempo[i-1],zsub)
+		zsub = zsub + dt_sub*0.5*(zpunto(tiempo[i-1],zsub)+zpunto(tiempo[i],z0))
 	end
     z[:,i] = zsub
     tiempo[i] = tiempo[i-1] + dt
-end    
-println("zfinal = $(z[:,end])")
+end	
+
+
 
 xdoc = XMLDocument()
 
@@ -130,6 +129,7 @@ for i in 1:Nt
 	xs3 = new_child(xs2, "OSV")
 	xs4 = new_child(xs3, "UTC")
 	add_text(xs4,"UTC = $(t_utc)") 
+	println(t_utc)
 
 	xs4 = new_child(xs3, "X")
 	set_attribute(xs4, "unit", "m")
@@ -157,9 +157,13 @@ for i in 1:Nt
 end
 
 # save to an XML file
-save_file(xdoc, "orbita.xml")
+save_file(xdoc, "orbita-RK2.xml")
 
 println(xdoc)
+
+
+
+
 
 
 

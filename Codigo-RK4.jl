@@ -95,43 +95,21 @@ NSubSteps = 200
 dt_sub = dt / NSubSteps
 
 #Runge Kutta orden 4
-#for i in 2:(Nt+1)
-	# println("paso $(i)")
-#	zsub = z[:,i-1]
-#	for substep in 1:NSubSteps
-#		k1 = zpunto(tiempo[i-1],zsub)
-#		k2 = zpunto(tiempo[i-1]+dt_sub*0.5, zsub + dt_sub*0.5*k1)
-#		k3 = zpunto(tiempo[i-1] + dt_sub*0.5, zsub + dt_sub*0.5*k2)
-#		k4 = zpunto(tiempo[i], zsub + dt_sub*k3)
-#		zsub = zsub + dt_sub*0.16*(k1 + 2k2 + 2k3 + k4)
-#    end
-#    z[:,i] = zsub
-#    tiempo[i] = tiempo[i-1] + dt
-#end
-
-#Runge Kutta orden 2
-#for i in 2:(Nt+1)
-	# println("paso $(i)")
-#	zsub = z[:,i-1]
-#	for substep in 1:NSubSteps
-#		z0 = zsub + dt_sub*zpunto(tiempo[i-1],zsub)
-#		zsub = zsub + dt_sub*0.5*(zpunto(tiempo[i-1],zsub)+zpunto(tiempo[i],z0))
-#	end
-#    z[:,i] = zsub
-#    tiempo[i] = tiempo[i-1] + dt
-#end	
-
-#Punto Medio
 for i in 2:(Nt+1)
 	# println("paso $(i)")
 	zsub = z[:,i-1]
 	for substep in 1:NSubSteps
-		zp = zpunto(tiempo[i],zsub)
-		zsub = zsub + dt_sub*(zpunto(tiempo[i]+dt_sub*0.5, zsub+ 0.5*dt_sub*zp))
-	end
+		k1 = zpunto(tiempo[i-1],zsub)
+		k2 = zpunto(tiempo[i-1]+dt_sub*0.5, zsub + dt_sub*0.5*k1)
+		k3 = zpunto(tiempo[i-1] + dt_sub*0.5, zsub + dt_sub*0.5*k2)
+		k4 = zpunto(tiempo[i], zsub + dt_sub*k3)
+		zsub = zsub + dt_sub*0.16*(k1 + 2k2 + 2k3 + k4)
+    end
     z[:,i] = zsub
     tiempo[i] = tiempo[i-1] + dt
-end	
+end
+
+
 
 xdoc = XMLDocument()
 
@@ -180,7 +158,7 @@ for i in 1:Nt
 end
 
 # save to an XML file
-save_file(xdoc, "orbitaPM.xml")
+save_file(xdoc, "orbita-RK4.xml")
 
 println(xdoc)
 
