@@ -109,8 +109,6 @@ for i in 2:Nt
     z[:,i] = zsub
     tiempo[i] = tiempo[i-1] + dt
 end    
-println("zfinal = $(z[:,end])")
-
 xdoc = XMLDocument()
 
 xroot = create_root(xdoc,"Earth_Explorer_File")
@@ -124,12 +122,15 @@ set_attribute(xs2, "count", "$(Nt)")
 
 for i in 1:Nt 
 
-	t_datetime = Dates.unix2datetime(tiempo[i])
+	#t_datetime = Dates.unix2datetime(tiempo[i])
+	t_datetime = Dates.DateTime(2018,8,14,22,59,32)+Dates.Second(10*i)
 	t_utc = Dates.format(t_datetime, "yyyy-mm-ddTHH:MM:SS.ssssss")
+	#println(t_utc)
 
 	xs3 = new_child(xs2, "OSV")
 	xs4 = new_child(xs3, "UTC")
 	add_text(xs4,"UTC = $(t_utc)") 
+	
 
 	xs4 = new_child(xs3, "X")
 	set_attribute(xs4, "unit", "m")
@@ -157,9 +158,13 @@ for i in 1:Nt
 end
 
 # save to an XML file
-save_file(xdoc, "orbita-euler-mejorado.xml")
+save_file(xdoc, "orbitaPM2.xml")
 
 println(xdoc)
+
+
+
+
 
 
 
